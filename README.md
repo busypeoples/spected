@@ -52,7 +52,56 @@ should return
 ]}
 ```
 
-### Example
+### Basic Example
+
+```js
+
+import {
+  compose,
+  curry,
+  head,
+  isEmpty,
+  length,
+  not,
+  prop,
+} from 'ramda'
+
+import spected from '../src/'
+
+const validate = spected(() => true, head) // return the first error message
+
+// predicates
+
+const notEmpty = compose(not, isEmpty)
+const hasCapitalLetter = a => /[A-Z]/.test(a)
+const isGreaterThan = curry((len, a) => (a > len))
+const isLengthGreaterThan = len => compose(isGreaterThan(len), prop('length'))
+
+
+// error messages
+
+const notEmptyMsg = field => `${field} should not be empty.`
+const minimumMsg = (field, len) => `Minimum ${field} length of ${len} is required.`
+const capitalLetterMag = field => `${field} should contain at least one uppercase letter.`
+
+// rules
+
+const nameValidationRule = [[notEmpty, notEmptyMsg('Name')]]
+
+const randomValidationRule = [
+  [isLengthGreaterThan(2), minimumMsg('Random', 3)],
+  [hasCapitalLetter, capitalLetterMag('Random')],
+]
+
+const validationRules = {
+  name: nameValidationRule,
+  random: randomValidationRule,
+}
+
+validate(validationRules, {name: 'foo', random: 'Abcd'})
+// {name: true, random: true}
+
+```
 
 ### Advanced
 A spec can be composed of other specs, enabling to define deeply nested structures to validate against nested input.
@@ -84,6 +133,85 @@ const userSpec = {
 ```
 
 Now we can validate against a deeply nested data structure.
+
+### Advanced Example
+
+```js
+
+import {
+  compose,
+  indexOf,
+  head,
+  isEmpty,
+  length,
+  not,
+} from 'ramda'
+
+import spected from '../src/'
+
+const validate = spected(() => true, head) // return the first error message
+
+const colors = ['green', 'blue', 'red']
+const notEmpty = compose(not, isEmpty)
+const minLength = a => b => length(b) > a
+const hasPresetColors = x => indexOf(x, colors) !== -1
+
+// Messages
+
+const notEmptyMsg = field => `${field} should not be empty.`
+const minimumMsg = (field, len) => `Minimum ${field} length of ${len} is required.`
+
+const spec = {
+  id: [[notEmpty, notEmptyMsg('id')]],
+  userName: [[notEmpty, notEmptyMsg('userName')], [minLength(5), minimumMsg('UserName', 6)]],
+  address: {
+    street: [[notEmpty, notEmptyMsg('street')]],
+  },
+  settings: {
+    profile: {
+      design: {
+        color: [[notEmpty, notEmptyMsg('color')], [hasPresetColors, 'Use defined colors']],
+        background: [[notEmpty, notEmptyMsg('background')], [hasPresetColors, 'Use defined colors']],
+      },
+    },
+  },
+}
+
+const input = {
+  id: 1,
+  userName: 'Random',
+  address: {
+    street: 'Foobar',
+  },
+  settings: {
+    profile: {
+      design: {
+        color: 'green',
+        background: 'blue',
+      },
+    },
+  },
+}
+
+validate(spec, input)
+
+/* {
+      id: true,
+      userName: true,
+      address: {
+        street: true,
+      },
+      settings: {
+        profile: {
+          design: {
+            color: true,
+            background: true,
+          },
+        },
+      },
+    }
+*/
+```
 
 ### Further Information
 
