@@ -1,10 +1,9 @@
 import { equal, deepEqual } from 'assert'
-
-import createValidation from '../src/'
 import {
   compose,
   curry,
   head,
+  indexOf,
   isEmpty,
   length,
   partial,
@@ -13,18 +12,16 @@ import {
   prop,
 } from 'ramda'
 
-const identity = r => r
+import spected from '../src/'
 
-// configure a transformation that simply returns the original value
-const transform = r => r.fold(head, () => true)
-const validate = createValidation(() => true, head)
+const validate = spected(() => true, head)
 
 // Predicates
 
 const colors = ['green', 'blue', 'red']
 const notEmpty = compose(not, isEmpty)
 const minLength = a => b => length(b) > a
-const hasPresetColors = x => R.indexOf(x, colors) !== -1
+const hasPresetColors = x => indexOf(x, colors) !== -1
 const hasCapitalLetter = a => /[A-Z]/.test(a)
 const isGreaterThan = curry((len, a) => (a > len))
 const isLengthGreaterThan = len => compose(isGreaterThan(len), prop('length'))
@@ -58,16 +55,16 @@ const repeatPasswordValidationRule = [
 ]
 
 const spec = {
-  id: [[notEmpty, 'notEmpty']],
-  userName: [[notEmpty, 'notEmpty'], [minLength(15), 'nope not that']],
+  id: [[notEmpty, notEmptyMsg('id')]],
+  userName: [[notEmpty, notEmptyMsg('userName')], [minLength(5), minimumMsg('UserName', 6)]],
   address: {
-    street: [[notEmpty, 'notEmpty']],
+    street: [[notEmpty, notEmptyMsg('street')]],
   },
   settings: {
     profile: {
       design: {
-        color: [[notEmpty, 'notEmpty'], [hasPresetColors, 'colors?']],
-        background: [[notEmpty, 'notEmpty'], [hasPresetColors, 'colors??']],
+        color: [[notEmpty, notEmptyMsg('color')], [hasPresetColors, 'Use defined colors']],
+        background: [[notEmpty, notEmptyMsg('background')], [hasPresetColors, 'Use defined colors']],
       },
     },
   },
@@ -181,24 +178,37 @@ describe('spected', () => {
   })
 
   it('should handle deeply nested inputs', () => {
-    const repeatDeepPasswordValidationRule = [
-      [isLengthGreaterThan(5), minimumMsg('RepeatedPassword', 6)],
-      [hasCapitalLetter, capitalLetterMag('RepeatedPassword')],
-      [(a, all) => path(['user', 'password'], all) == a, equalMsg('Password', 'RepeatPassword')]
-    ]
-
-    const validationRules = {
-      user: {
-        password: passwordValidationRule,
-        repeatPassword: repeatDeepPasswordValidationRule,
+    const input = {
+      id: 1,
+      userName: 'Random',
+      address: {
+        street: 'Foobar',
+      },
+      settings: {
+        profile: {
+          design: {
+            color: 'green',
+            background: 'blue',
+          },
+        },
       },
     }
-    const result = validate(validationRules, {user: {password: 'foobarR', repeatPassword: 'foobar'}})
+
+    const result = validate(spec, input)
     deepEqual({
-      user: {
-        password: true,
-        repeatPassword: capitalLetterMag('RepeatedPassword'),
-      }
+      id: true,
+      userName: true,
+      address: {
+        street: true,
+      },
+      settings: {
+        profile: {
+          design: {
+            color: true,
+            background: true,
+          },
+        },
+      },
     }, result)
   })
 
