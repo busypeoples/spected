@@ -258,6 +258,42 @@ describe('spected', () => {
 
   describe('validate', () => {
 
+    it('should return the original value if validation is successful based on a success callback a => a', () => {
+      const verify = validate(a => a, a => a)
+      const validationRules = {
+        name: nameValidationRule,
+      }
+      const result = verify(validationRules, {name: 'foobarbaz'})
+      deepEqual({name: 'foobarbaz'}, result)
+    })
+
+    it('should return true if validation is successful based on a success callback a => true', () => {
+      const verify = validate(() => true, () => false)
+      const validationRules = {
+        name: nameValidationRule,
+      }
+      const result = verify(validationRules, {name: 'foobarbaz'})
+      deepEqual({name: true}, result)
+    })
+
+    it('should return false if validation has failed for an input based on an error callback () => false', () => {
+      const verify = validate(() => true, () => false)
+      const validationRules = {
+        name: nameValidationRule,
+      }
+      const result = verify(validationRules, {name: ''})
+      deepEqual({name: false}, result)
+    })
+
+    it('should return false if validation has failed for an input based on an error callback xs => xs[o]', () => {
+      const verify = validate(() => true, xs => xs[0])
+      const validationRules = {
+        name: nameValidationRule,
+      }
+      const result = verify(validationRules, {name: ''})
+      deepEqual({name: notEmptyMsg('Name')}, result)
+    })
+
     it('should return an error when invalid', () => {
       const validationRules = {
         name: nameValidationRule,

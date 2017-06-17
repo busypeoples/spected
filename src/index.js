@@ -18,7 +18,7 @@ import {
  */
 const transform = (successFn: Function, failFn: Function, input: Array<any>): any => {
   const valid = all(equals(true), input)
-  return valid ? successFn(input) : failFn(filter(a => a !== true, input))
+  return valid ? successFn() : failFn(filter(a => a !== true, input))
 }
 
 /**
@@ -48,7 +48,7 @@ export const validate = curry((successFn: Function, failFn: Function, spec: Obje
     const value = input[key]
     const predicates = spec[key]
     if (Array.isArray(predicates)) {
-      return { ...result, [key]: transform(successFn, failFn, map(f => runPredicate(f, value, input), predicates)) }
+      return { ...result, [key]: transform(() => successFn(value), failFn, map(f => runPredicate(f, value, input), predicates)) }
     } else if (typeof predicates === 'object') {
       return { ...result, [key]: validate(successFn, failFn, predicates, value) }
     } else {

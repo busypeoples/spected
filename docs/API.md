@@ -67,14 +67,14 @@ with a default success function `() => true` and a default failure function `err
 #### Arguments
 
 1. `successFn` *(Function)*: Transform the result as needed, transformer is called when an input is valid.
-In general you will want to return a true when the input is valid. But you might want to return something different, in this case return something else.
+The result is passed to the callback enabling to return the original input value if needed.
 
 ```js
 const successFn = () => true
 {name: true, random: ['error...']}
 
-const successFn = () => 
-{name: true, random: ['error...']}
+const successFn = val => val
+{name: 'original value', random: ['error...']}
 ```
 
 2. `failFn` *(Function)*: Transform the result as needed, transformer is called when an input is invalid. Recieves an array of error messages.
