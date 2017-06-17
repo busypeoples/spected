@@ -91,16 +91,10 @@ For a deeper understanding of the underlying ideas and concepts:
 
 [Form Validation As A Higher Order Component Pt.1](https://medium.com/javascript-inside/form-validation-as-a-higher-order-component-pt-1-83ac8fd6c1f0)
 
-
 ### Credits
 Written by [A.Sharif](https://twitter.com/sharifsbeat)
 
 Original idea and support by [Stefan Oestreicher](https://twitter.com/thinkfunctional)
-
-#### Documentation
-[API](docs/API.md)
-
-[FAQ](docs/FAQ.md)
 
 ### License
 
