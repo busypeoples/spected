@@ -224,6 +224,9 @@ Written by [A.Sharif](https://twitter.com/sharifsbeat)
 
 Original idea and support by [Stefan Oestreicher](https://twitter.com/thinkfunctional)
 
+#### Documentation
+[API](docs/API.md)
+
 ### License
 
 MIT
