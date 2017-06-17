@@ -42,7 +42,7 @@ const inputData = { name 'abcdef', random: 'z'}
 
 We would like to have a result that displays any possible errors.
 
-Calling validate `validate(successFn, failFn, inputData, validationRules)`
+Calling validate `spected(validationRules, inputData)`
 should return
 ```javascript
 {name: true, 
@@ -66,9 +66,7 @@ import {
   prop,
 } from 'ramda'
 
-import spected from '../src/'
-
-const validate = spected(() => true, head) // return the first error message
+import spected from 'spected'
 
 // predicates
 
@@ -98,7 +96,7 @@ const validationRules = {
   random: randomValidationRule,
 }
 
-validate(validationRules, {name: 'foo', random: 'Abcd'})
+spected(validationRules, {name: 'foo', random: 'Abcd'})
 // {name: true, random: true}
 
 ```
@@ -147,9 +145,7 @@ import {
   not,
 } from 'ramda'
 
-import spected from '../src/'
-
-const validate = spected(() => true, head) // return the first error message
+import spected from 'spected'
 
 const colors = ['green', 'blue', 'red']
 const notEmpty = compose(not, isEmpty)
@@ -193,7 +189,7 @@ const input = {
   },
 }
 
-validate(spec, input)
+spected(spec, input)
 
 /* {
       id: true,
@@ -212,6 +208,41 @@ validate(spec, input)
     }
 */
 ```
+
+### Custom Transformations
+In case you want to change the way errors are displayed, you can use the low level `validate` function, which expects a success and a failure
+callback in addition to the rules and input.
+
+```js
+import {validate} from 'spected'
+const verify = validate(
+    () => true, // always return true
+    head // return first error message head = x => x[0]   
+)
+const spec = {
+  name: [
+    [isNotEmpty, 'Name should not be  empty.']
+  ],
+  random: [
+    [isLengthGreaterThan(7), 'Minimum Random length of 8 is required.'],
+    [hasCapitalLetter, 'Random should contain at least one uppercase letter.'],
+  ]
+}
+
+const input = {name: 'foobar', random: 'r'}
+
+verify(spec, input)
+ 
+//  {
+//      name: true, 
+//      random: 'Minimum Random length of 8 is required.',
+//  }
+   
+
+```
+
+Check the [API documentation](docs/API.md) for further information.
+
 
 ### Further Information
 
