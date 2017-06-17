@@ -4,6 +4,7 @@ import {
   curry,
   equals,
   filter,
+  identity,
   map,
   reduce,
 } from 'ramda'
@@ -42,7 +43,7 @@ const runPredicate = ([predicate, errorMsg]:[Function, string],
  * @param {Object} input the validation input data
  * @returns {{}}
  */
-const validate = (successFn: Function, failFn: Function, spec: Object, input: Object) =>
+export const validate = curry((successFn: Function, failFn: Function, spec: Object, input: Object): Object =>
   reduce((result, key) => {
     const value = input[key]
     const predicates = spec[key]
@@ -53,6 +54,15 @@ const validate = (successFn: Function, failFn: Function, spec: Object, input: Ob
     } else {
       return { ...result, [key]: successFn([]) }
     }
-  }, {}, Object.keys(input))
+  }, {}, Object.keys(input)))
 
-export default curry(validate)
+/**
+ *
+ * @param {Object} spec the rule object
+ * @param {Object} input the validation input data
+ * @returns {{}}
+ */
+const spected = (spec: Object, input: Object): Object =>
+  validate(() => true, identity, spec, input)
+
+export default curry(spected)
