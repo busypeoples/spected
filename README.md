@@ -37,7 +37,7 @@ const validationRules = {
 And imagine this is our input data.
 
 ```javascript
-const inputData = { name 'abcdef', random: 'z'}
+const inputData = { name: 'abcdef', random: 'z'}
 ```
 
 We would like to have a result that displays any possible errors.
