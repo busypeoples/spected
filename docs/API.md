@@ -7,9 +7,9 @@ Also works with deep nested objects. `spected` is curried.
 
 #### Arguments
 
-1. `input` *(Object)*: The data to be validated.
+1. `rules` *(Object)*: An object of rules, consisting of arrays containing predicate function / error message tuple, f.e. `{name: [[a => a.length > 2, 'Minimum length 3.']]}`
 
-2. `rules` *(Object)*: An object of rules, consisting of arrays containing predicate function / error message tuple, f.e. `{name: [[a => a.length > 2, 'Minimum length 3.']]}`
+2. `input` *(Object)*: The data to be validated.
 
 
 Depending on the status of the input either a `true` or a list of error messages is returned.
@@ -89,10 +89,10 @@ const failFn = (errorMsgs) => errorMsgs
 
 ```
 
+3. `rules` *(Object)*: An object of rules, consisting of arrays containing predicate function / error message tuple, f.e. `{name: [[a => a.length > 2, 'Minimum length 3.']]}`
 
-3. `input` *(Object)*: The data to be validated.
+4. `input` *(Object)*: The data to be validated.
 
-4. `rules` *(Object)*: An object of rules, consisting of arrays containing predicate function / error message tuple, f.e. `{name: [[a => a.length > 2, 'Minimum length 3.']]}`
 
 #### Returns
 (Object): An object containing the validation result.
