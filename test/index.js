@@ -32,6 +32,7 @@ const isEqual = compareKey => (a, all) => a === all[compareKey]
 const notEmptyMsg = field => `${field} should not be empty.`
 const minimumMsg = (field, len) => `Minimum ${field} length of ${len} is required.`
 const capitalLetterMag = field => `${field} should contain at least one uppercase letter.`
+const capitalLetterMsgWithValue = (field) => (value) => `${field} should contain at least one uppercase letter. ${value} is missing an uppercase letter.`
 const equalMsg = (field1, field2) => `${field2} should be equal with ${field1}`
 
 // Rules
@@ -476,6 +477,14 @@ describe('spected', () => {
           password: true,
         }
       }, result)
+    })
+
+    it('should pass the value to the error message if it is a function', () => {
+      const validationRules = {
+        password: [[hasCapitalLetter, capitalLetterMsgWithValue('Password')]],
+      }
+      const result = verify(validationRules, { password: 'foobar' })
+      deepEqual({ password: 'Password should contain at least one uppercase letter. foobar is missing an uppercase letter.' }, result)
     })
   })
   

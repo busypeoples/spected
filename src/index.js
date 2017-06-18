@@ -24,16 +24,18 @@ const transform = (successFn: Function, failFn: Function, input: Array<any>): an
 /**
  *
  * @param {Function} predicate validation function to apply inputs on
- * @param {String} errorMsg error message to return in case of fail
+ * @param {String|Function} errorMsg error message to return in case of fail
  * @param {*} value the actual value
  * @param {Object} inputs the input object - in case the predicate function needs access to dependent values
  * @returns {Boolean}
  */
 const runPredicate = ([predicate, errorMsg]:[Function, string],
   value:any,
-  inputs:Object) => predicate(value, inputs)
+  inputs:Object) => predicate(value, inputs) // eslint-disable-line no-nested-ternary
   ? true
-  : errorMsg
+  : typeof errorMsg === 'function'
+    ? errorMsg(value)
+    : errorMsg
 
 /**
  *
