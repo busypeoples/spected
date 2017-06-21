@@ -80,7 +80,7 @@ const isLengthGreaterThan = len => compose(isGreaterThan(len), prop('length'))
 
 const notEmptyMsg = field => `${field} should not be empty.`
 const minimumMsg = (field, len) => `Minimum ${field} length of ${len} is required.`
-const capitalLetterMag = field => `${field} should contain at least one uppercase letter.`
+const capitalLetterMsg = field => `${field} should contain at least one uppercase letter.`
 
 // rules
 
@@ -88,7 +88,7 @@ const nameValidationRule = [[notEmpty, notEmptyMsg('Name')]]
 
 const randomValidationRule = [
   [isLengthGreaterThan(2), minimumMsg('Random', 3)],
-  [hasCapitalLetter, capitalLetterMag('Random')],
+  [hasCapitalLetter, capitalLetterMsg('Random')],
 ]
 
 const validationRules = {
