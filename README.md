@@ -44,6 +44,7 @@ We would like to have a result that displays any possible errors.
 
 Calling validate `spected(validationRules, inputData)`
 should return
+
 ```javascript
 {name: true, 
  random: [
@@ -51,6 +52,79 @@ should return
     'Random should contain at least one uppercase letter.' 
 ]}
 ```
+
+##### Validating Dynamic Data
+There are cases where a validation has to run against an unkown number of items. f.e. submitting a form with dynamic fields.
+These dynamic fields can be an array or as object keys.
+
+```js
+
+const input = {
+  id: 4,
+  users: [
+    {firstName: 'foobar', lastName: 'action'},
+    {firstName: 'foo', lastName: 'bar'},
+    {firstName: 'foobar', lastName: 'Action'},
+  ]
+}
+
+```
+
+All `users` need to run against the same spec.
+
+```js
+
+const capitalLetterMsg = 'Capital Letter needed.'
+
+const userSpec = {
+  firstName: [[isLengthGreaterThan(5), minimumMsg('firstName', 6)]],
+  lastName: [[hasCapitalLetter, capitalLetterMsg]],
+}
+
+```
+
+Assign the `userSpec` to `users`, spected will run the predicates against every collection item.
+
+```js
+
+const validationRules = {
+  id: [[ notEmpty, notEmptyMsg('id') ]],
+  users: userSpec,
+}
+
+spected(validationRules, input)
+
+```
+
+In case of an object containing an unknown number of properties, the approach is the following.
+
+```js
+
+const input = {
+  id: 4,
+  users: {
+    one: {firstName: 'foobar', lastName: 'action'},
+    two: {firstName: 'foo', lastName: 'bar'},
+    three: {firstName: 'foobar', lastName: 'Action'},
+  }
+}
+
+```
+
+Spected can also work with functions instead of an `[predFn, errorMsg]` tuple array, which means one can specify a function 
+that expects the input and then maps every rule to the object. Note: This example uses Ramda `map`, which expects the 
+function as the first argument and then always returns the UserSpec for every property. 
+
+```js
+
+const validationRules = {
+  id: [[ notEmpty, notEmptyMsg('id') ]],
+  users: map(() => userSpec)),
+}
+
+```
+
+How `UserSpec` is applied to every Object key is not spected specific, but can be freely implemented as needed.
 
 ### Basic Example
 
