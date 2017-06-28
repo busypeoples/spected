@@ -49,10 +49,15 @@ export const validate = curry((successFn: Function, failFn: Function, spec: Obje
   reduce((result, key) => {
     const value = input[key]
     const predicates = spec[key]
-    if (Array.isArray(predicates)) {
+    if (Array.isArray(value)) {
+      return { ...result, [key]: map(v => validate(successFn, failFn, predicates, v), value) }
+    } else if (Array.isArray(predicates)) {
       return { ...result, [key]: transform(() => successFn(value), failFn, map(f => runPredicate(f, value, input), predicates)) }
     } else if (typeof predicates === 'object') {
       return { ...result, [key]: validate(successFn, failFn, predicates, value) }
+    } else if (typeof predicates === 'function') {
+      const rules = predicates(value)
+      return { ...result, [key]: validate(successFn, failFn, rules, value) }
     } else {
       return { ...result, [key]: successFn([]) }
     }
