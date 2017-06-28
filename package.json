@@ -14,7 +14,8 @@
     "build": "npm run build:lib && npm run build:dist",
     "build:lib": "babel src -d lib",
     "build:dist": "NODE_ENV=production rollup -c",
-    "test": "npm run flow && npm run lint && mocha --compilers js:babel-core/register --recursive --colors",
+    "test": "npm run flow && npm run lint && npm run test:lib",
+    "test:lib": "mocha --compilers js:babel-core/register --recursive --colors",
     "flow": "flow check",
     "lint": "eslint src",
     "prepublish": "npm run clean && npm run build"

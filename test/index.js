@@ -1,5 +1,6 @@
 import { equal, deepEqual } from 'assert'
 import {
+  always,
   compose,
   curry,
   head,
@@ -7,6 +8,7 @@ import {
   isEmpty,
   length,
   partial,
+  map,
   not,
   path,
   prop,
@@ -483,9 +485,78 @@ describe('spected', () => {
       const validationRules = {
         password: [[hasCapitalLetter, capitalLetterMsgWithValue('Password')]],
       }
-      const result = verify(validationRules, { password: 'foobar' })
-      deepEqual({ password: 'Password should contain at least one uppercase letter. foobar is missing an uppercase letter.' }, result)
+      const result = verify(validationRules, {password: 'foobar'})
+      deepEqual({password: 'Password should contain at least one uppercase letter. foobar is missing an uppercase letter.'}, result)
     })
+
+    it('should work with dynamic rules: an array of inputs', () => {
+      const capitalLetterMsg = 'capital letter missing'
+      const userSpec = {
+        firstName: [[isLengthGreaterThan(5), minimumMsg('firstName', 6)]],
+        lastName: [[hasCapitalLetter, capitalLetterMsg]],
+      }
+
+      const validationRules = {
+        id: [[ notEmpty, notEmptyMsg('id') ]],
+        users: userSpec,
+      }
+
+      const input = {
+        id: 4,
+        users: [
+          {firstName: 'foobar', lastName: 'action'},
+          {firstName: 'foo', lastName: 'bar'},
+          {firstName: 'foobar', lastName: 'Action'},
+        ]
+      }
+
+      const expected = {
+        id: true,
+        users: [
+          {firstName: true, lastName: capitalLetterMsg},
+          {firstName: minimumMsg('firstName', 6), lastName: capitalLetterMsg},
+          {firstName: true, lastName: true},
+        ]
+      }
+
+      const result = verify(validationRules, input)
+      deepEqual(expected, result)
+    })
+
+    it('should work with dynamic rules: an object containing arbitrary inputs', () => {
+      const capitalLetterMsg = 'capital letter missing'
+      const userSpec = {
+        firstName: [[isLengthGreaterThan(5), minimumMsg('firstName', 6)]],
+        lastName: [[hasCapitalLetter, capitalLetterMsg]],
+      }
+
+      const validationRules = {
+        id: [[ notEmpty, notEmptyMsg('id') ]],
+        users: map((always(userSpec)))
+      }
+
+      const input = {
+        id: 4,
+        users: {
+          one: {firstName: 'foobar', lastName: 'action'},
+          two: {firstName: 'foo', lastName: 'bar'},
+          three: {firstName: 'foobar', lastName: 'Action'},
+        }
+      }
+
+      const expected = {
+        id: true,
+        users: {
+          one: {firstName: true, lastName: capitalLetterMsg},
+          two: {firstName: minimumMsg('firstName', 6), lastName: capitalLetterMsg},
+          three: {firstName: true, lastName: true},
+        }
+      }
+
+      const result = verify(validationRules, input)
+      deepEqual(expected, result)
+    })
+
   })
-  
+
 })
