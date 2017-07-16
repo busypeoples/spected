@@ -53,6 +53,31 @@ should return
 ]}
 ```
 
+You can also pass in an array of items as an input and validate that all are valid. 
+You need to write the appropriate function to handle any specific case.
+
+```javascript
+const userSpec = [
+  [ 
+    items => all(isLengthGreaterThan(5), items), 
+    'Every item must have have at least 6 characters!'
+  ]
+]
+
+const validationRules = {
+  id: [[ notEmpty, notEmptyMsg('id') ]],
+  users: userSpec,
+}
+
+const input = {
+  id: 4,
+  users: ['foobar', 'foobarbaz']
+}
+
+spected(validationRules, input)
+
+```
+
 ##### Validating Dynamic Data
 There are cases where a validation has to run against an unkown number of items. f.e. submitting a form with dynamic fields.
 These dynamic fields can be an array or as object keys.
@@ -83,13 +108,13 @@ const userSpec = {
 
 ```
 
-Assign the `userSpec` to `users`, spected will run the predicates against every collection item.
+As we're only dealing with functions, map over `userSpec` and run the predicates against every collection item.
 
 ```js
 
 const validationRules = {
   id: [[ notEmpty, notEmptyMsg('id') ]],
-  users: userSpec,
+  users: map(always(userSpec)),
 }
 
 spected(validationRules, input)
