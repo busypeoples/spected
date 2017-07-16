@@ -1,6 +1,7 @@
 /* @flow */
 import {
   all,
+  any,
   curry,
   equals,
   filter,
@@ -39,6 +40,12 @@ const runPredicate = ([predicate, errorMsg]:[Function, string],
 
 /**
  *
+ * @param {*} value
+ */
+const isObject = value => typeof value === 'object'
+
+/**
+ *
  * @param {Function} successFn callback function in case of valid input
  * @param {Function} failFn callback function in case of invalid input
  * @param {Object} spec the rule object
@@ -49,7 +56,12 @@ export const validate = curry((successFn: Function, failFn: Function, spec: Obje
   reduce((result, key) => {
     const value = input[key]
     const predicates = spec[key]
-    if (Array.isArray(value)) {
+
+    if (Array.isArray(value) && !all(isObject, value) && any(isObject, value)) {
+      throw Error('Mismatch types in array!')
+    }
+
+    if (Array.isArray(value) && all(isObject, value)) {
       return { ...result, [key]: map(v => validate(successFn, failFn, predicates, v), value) }
     } else if (Array.isArray(predicates)) {
       return { ...result, [key]: transform(() => successFn(value), failFn, map(f => runPredicate(f, value, input), predicates)) }

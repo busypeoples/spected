@@ -1,4 +1,4 @@
-import { equal, deepEqual } from 'assert'
+import { equal, deepEqual, throws } from 'assert'
 import {
   always,
   compose,
@@ -555,6 +555,84 @@ describe('spected', () => {
 
       const result = verify(validationRules, input)
       deepEqual(expected, result)
+    })
+
+    it('should work with dynamic rules: an array of correct strings', () => {
+      const capitalLetterMsg = 'capital letter missing'
+
+      const validationRules = {
+        id: [[ notEmpty, notEmptyMsg('id') ]],
+        users: [[ 
+          array => array.every(item => item.length >= 5), 
+          'Every item in array must be string with at least 5 characters' 
+        ]],
+      }
+
+      const input = {
+        id: 4,
+        users: [
+          'foobar', 
+          'longerstring'
+        ]
+      }
+
+      const expected = {
+        id: true,
+        users: true
+      }
+
+      const result = spected(validationRules, input)
+      deepEqual(result, expected)
+    })
+
+    it('should work with dynamic rules: an array of strings with some incorrect string', () => {
+      const capitalLetterMsg = 'capital letter missing'
+
+      const validationRules = {
+        id: [[ notEmpty, notEmptyMsg('id') ]],
+        users: [[ 
+          array => array.every(item => item.length >= 5), 
+          'Every item in array must be string with at least 5 characters' 
+        ]],
+      }
+
+      const input = {
+        id: 4,
+        users: [
+          'foobar', 
+          'foo'
+        ]
+      }
+
+      const expected = {
+        id: true,
+        users: 'Every item in array must be string with at least 5 characters'
+      }
+
+      const result = verify(validationRules, input)
+      deepEqual(result, expected)
+    })
+
+    it('should work with dynamic rules: an array of strings with mismatch types returns error', () => {
+      const capitalLetterMsg = 'capital letter missing'
+
+      const validationRules = {
+        id: [[ notEmpty, notEmptyMsg('id') ]],
+        users: [[ 
+          array => array.every(item => item.length >= 5), 
+          'Every item in array must be string with at least 5 characters' 
+        ]],
+      }
+
+      const input = {
+        id: 4,
+        users: [
+          'foobar', 
+          { fistName: 'foobar' }
+        ]
+      }
+
+      throws(() => verify(validationRules, input), /Mismatch types in array!/);
     })
 
   })
