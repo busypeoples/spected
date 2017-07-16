@@ -1,8 +1,10 @@
 import { equal, deepEqual } from 'assert'
 import {
+  all,
   always,
   compose,
   curry,
+  filter,
   head,
   indexOf,
   isEmpty,
@@ -498,7 +500,7 @@ describe('spected', () => {
 
       const validationRules = {
         id: [[ notEmpty, notEmptyMsg('id') ]],
-        users: userSpec,
+        users: map(always(userSpec)),
       }
 
       const input = {
@@ -551,6 +553,54 @@ describe('spected', () => {
           two: {firstName: minimumMsg('firstName', 6), lastName: capitalLetterMsg},
           three: {firstName: true, lastName: true},
         }
+      }
+
+      const result = verify(validationRules, input)
+      deepEqual(expected, result)
+    })
+
+    it('should work with an array as input value and display an error when validation fails', () => {
+      const userSpec = [
+        [ items => all(isLengthGreaterThan(5), items), 'Every item must have have at least 6 characters!'],
+      ]
+
+      const validationRules = {
+        id: [[ notEmpty, notEmptyMsg('id') ]],
+        users: userSpec,
+      }
+
+      const input = {
+        id: 4,
+        users: ['foo', 'foobar', 'foobarbaz']
+      }
+
+      const expected = {
+        id: true,
+        users: 'Every item must have have at least 6 characters!'
+      }
+
+      const result = verify(validationRules, input)
+      deepEqual(expected, result)
+    })
+
+    it('should work with an array as input value and run the success function when all inputs validate successfully', () => {
+      const userSpec = [
+        [ items => all(isLengthGreaterThan(5), items), 'Every item must have have at least 6 characters!'],
+      ]
+
+      const validationRules = {
+        id: [[ notEmpty, notEmptyMsg('id') ]],
+        users: userSpec,
+      }
+
+      const input = {
+        id: 4,
+        users: ['foobar', 'foobarbaz']
+      }
+
+      const expected = {
+        id: true,
+        users: true,
       }
 
       const result = verify(validationRules, input)
