@@ -39,8 +39,8 @@ const runPredicate = ([predicate, errorMsg]:[Function, string],
     : errorMsg
 
 /**
- * 
- * @param {*} value 
+ *
+ * @param {*} value
  */
 const isObject = value => typeof value === 'object'
 
@@ -56,7 +56,7 @@ export const validate = curry((successFn: Function, failFn: Function, spec: Obje
   reduce((result, key) => {
     const value = input[key]
     const predicates = spec[key]
-        
+
     if (Array.isArray(value) && !all(isObject, value) && any(isObject, value)) {
       throw Error('Mismatch types in array!')
     }
