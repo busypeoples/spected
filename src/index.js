@@ -29,13 +29,13 @@ const transform = (successFn: Function, failFn: Function, input: Array<any>): an
  * @param {Object} inputs the input object - in case the predicate function needs access to dependent values
  * @returns {Boolean}
  */
-const runPredicate = ([predicate, errorMsg]: [Function, string],
-  value: any,
-  inputs: Object, field: string) => predicate(value, inputs) // eslint-disable-line no-nested-ternary
-    ? true
-    : typeof errorMsg === 'function'
-      ? errorMsg(value, field)
-      : errorMsg
+const runPredicate = ([predicate, errorMsg]:[Function, string],
+  value:any,
+  inputs:Object, field:string) => predicate(value, inputs) // eslint-disable-line no-nested-ternary
+  ? true
+  : typeof errorMsg === 'function'
+    ? errorMsg(value, field)
+    : errorMsg
 
 /**
  *
