@@ -7,7 +7,8 @@ Also works with deep nested objects. `spected` is curried.
 
 #### Arguments
 
-1. `rules` *(Object)*: An object of rules, consisting of arrays containing predicate function / error message tuple, f.e. `{name: [[a => a.length > 2, 'Minimum length 3.']]}`
+1. `rules` *(Object)*: An object of rules, consisting of arrays containing predicate function / error message tuple, f.e. `{name: [[a => a.length > 2, 'Minimum length 3.']]}`.
+The error message can also be a function with this signature: `(value, key) => message`
 
 2. `input` *(Object)*: The data to be validated.
 
@@ -32,13 +33,15 @@ Depending on the status of the input either a `true` or a list of error messages
 ```js
 import spected from 'spected'
 
+const capitalLetterMsg = (value, key) => `The field ${key} should contain at least one uppercase letter. '${value}' is missing an uppercase letter.`
+
 const spec = {
   name: [
     [isNotEmpty, 'Name should not be  empty.']
   ],
   random: [
     [isLengthGreaterThan(7), 'Minimum Random length of 8 is required.'],
-    [hasCapitalLetter, 'Random should contain at least one uppercase letter.'],
+    [hasCapitalLetter, capitalLetterMsg],
   ]
 }
 
@@ -50,7 +53,7 @@ spected(spec, input)
 //      name: true, 
 //      random: [
 //          'Minimum Random length of 8 is required.', 
-//          'Random should contain at least one uppercase letter.'
+//          'The field random should contain at least one uppercase letter. 'r' is missing an uppercase letter.'
 //      ]
 //  }
    

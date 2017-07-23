@@ -14,6 +14,8 @@ import {
   not,
   path,
   prop,
+  flip,
+  uncurryN
 } from 'ramda'
 
 import spected, {validate} from '../src/'
@@ -483,12 +485,12 @@ describe('spected', () => {
       }, result)
     })
 
-    it('should pass the value to the error message if it is a function', () => {
+     it('should pass the key and the value to the error message if it is a function', () => {
       const validationRules = {
-        password: [[hasCapitalLetter, capitalLetterMsgWithValue('Password')]],
+        password: [[hasCapitalLetter, compose(flip, uncurryN(2))(capitalLetterMsgWithValue)]],
       }
-      const result = verify(validationRules, {password: 'foobar'})
-      deepEqual({password: 'Password should contain at least one uppercase letter. foobar is missing an uppercase letter.'}, result)
+      const result = verify(validationRules, { password: 'foobar' })
+      deepEqual({ password: 'password should contain at least one uppercase letter. foobar is missing an uppercase letter.' }, result)
     })
 
     it('should work with dynamic rules: an array of inputs', () => {

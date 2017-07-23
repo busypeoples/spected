@@ -31,10 +31,10 @@ const transform = (successFn: Function, failFn: Function, input: Array<any>): an
  */
 const runPredicate = ([predicate, errorMsg]:[Function, string],
   value:any,
-  inputs:Object) => predicate(value, inputs) // eslint-disable-line no-nested-ternary
+  inputs:Object, field:string) => predicate(value, inputs) // eslint-disable-line no-nested-ternary
   ? true
   : typeof errorMsg === 'function'
-    ? errorMsg(value)
+    ? errorMsg(value, field)
     : errorMsg
 
 /**
@@ -50,7 +50,7 @@ export const validate = curry((successFn: Function, failFn: Function, spec: Obje
     const value = input[key]
     const predicates = spec[key]
     if (Array.isArray(predicates)) {
-      return { ...result, [key]: transform(() => successFn(value), failFn, map(f => runPredicate(f, value, input), predicates)) }
+      return { ...result, [key]: transform(() => successFn(value), failFn, map(f => runPredicate(f, value, input, key), predicates)) }
     } else if (typeof predicates === 'object') {
       return { ...result, [key]: validate(successFn, failFn, predicates, value) }
     } else if (typeof predicates === 'function') {
