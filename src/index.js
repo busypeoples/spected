@@ -67,7 +67,6 @@ export const validate = curry((successFn: Function, failFn: Function, spec: Obje
  * @param {Object} input the validation input data
  * @returns {{}}
  */
-const spected = (spec: Object, input: Object): Object =>
-  validate(() => true, identity, spec, input)
+const spected = validate(() => true, identity)
 
-export default curry(spected)
+export default spected
