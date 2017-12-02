@@ -609,6 +609,16 @@ describe('spected', () => {
       deepEqual(expected, result)
     })
 
+    it('should work with a function as input value', () => {
+      const verify = validate(a => a, a => a)
+      const validationRules = {
+        name: nameValidationRule,
+      }
+      const input = {name: 'foobarbaz'}
+      const result = verify(validationRules, key => key ? ({...input, [key]: ''}) : input)
+      deepEqual({name: ['Name should not be empty.']}, result)
+    })
+
   })
 
 })
