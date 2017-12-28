@@ -258,7 +258,7 @@ const minimumMsg = (field, len) => `Minimum ${field} length of ${len} is require
 
 const spec = {
   id: [[notEmpty, notEmptyMsg('id')]],
-  userName: [[notEmpty, notEmptyMsg('userName')], [minLength(5), minimumMsg('UserName', 6)]],
+  userName: [[notEmpty, notEmptyMsg('userName')], [minLength(5), minimumMsg('userName', 6)]],
   address: {
     street: [[notEmpty, notEmptyMsg('street')]],
   },
