@@ -42,15 +42,18 @@ const runPredicate = ([predicate, errorMsg]:[Function, string],
  * @param {Function} successFn callback function in case of valid input
  * @param {Function} failFn callback function in case of invalid input
  * @param {Object} spec the rule object
- * @param {Object} input the validation input data
+ * @param {Object|Function} input the validation input data
  * @returns {{}}
  */
-export const validate = curry((successFn: Function, failFn: Function, spec: Object, input: Object): Object =>
-  reduce((result, key) => {
-    const value = input[key]
+export const validate = curry((successFn: Function, failFn: Function, spec: Object, input: Object): Object => {
+  const inputFn = typeof input === 'function' ? input : (key?: string) => key ? input : input
+  const keys = Object.keys(inputFn())
+  return reduce((result, key) => {
+    const inputObj = inputFn(key)
+    const value = inputObj[key]
     const predicates = spec[key]
     if (Array.isArray(predicates)) {
-      return { ...result, [key]: transform(() => successFn(value), failFn, map(f => runPredicate(f, value, input, key), predicates)) }
+      return { ...result, [key]: transform(() => successFn(value), failFn, map(f => runPredicate(f, value, inputObj, key), predicates)) }
     } else if (typeof predicates === 'object') {
       return { ...result, [key]: validate(successFn, failFn, predicates, value) }
     } else if (typeof predicates === 'function') {
@@ -59,7 +62,8 @@ export const validate = curry((successFn: Function, failFn: Function, spec: Obje
     } else {
       return { ...result, [key]: successFn([]) }
     }
-  }, {}, Object.keys(input)))
+  }, {}, keys)
+})
 
 /**
  *
