@@ -10,8 +10,7 @@ Also works with deep nested objects. `spected` is curried.
 1. `rules` *(Object)*: An object of rules, consisting of arrays containing predicate function / error message tuple, f.e. `{name: [[a => a.length > 2, 'Minimum length 3.']]}`.
 The error message can also be a function with this signature: `(value, key) => message`
 
-2. `input` *(Object)*: The data to be validated.
-
+2. `input` *(Object|Function)*: The data to be validated.
 
 Depending on the status of the input either a `true` or a list of error messages is returned.
 
@@ -20,9 +19,9 @@ Depending on the status of the input either a `true` or a list of error messages
 
 ```js
 {
-    name: true, 
+    name: true,
     random: [
-        'Minimum Random length of 8 is required.', 
+        'Minimum Random length of 8 is required.',
         'Random should contain at least one uppercase letter.'
     ]
 }
@@ -48,23 +47,23 @@ const spec = {
 const input = {name: 'foobar', random: 'r'}
 
 spected(spec, input)
- 
+
 //  {
-//      name: true, 
+//      name: true,
 //      random: [
-//          'Minimum Random length of 8 is required.', 
+//          'Minimum Random length of 8 is required.',
 //          'The field random should contain at least one uppercase letter. 'r' is missing an uppercase letter.'
 //      ]
 //  }
-   
+
 
 ```
 
 ## `validate(successFn, errorFn, rules, input)`
 
 Validates data input against a set of validation rules and returns a result object containing error information for every provided data field.
-Additionally requires success and failure callback to transform the results as needed. 
-Also works with deep nested objects. `validate` is curried and is internally used by `spected` 
+Additionally requires success and failure callback to transform the results as needed.
+Also works with deep nested objects. `validate` is curried and is internally used by `spected`
 with a default success function `() => true` and a default failure function `errors => errors`.
 
 #### Arguments
@@ -94,7 +93,7 @@ const failFn = (errorMsgs) => errorMsgs
 
 3. `rules` *(Object)*: An object of rules, consisting of arrays containing predicate function / error message tuple, f.e. `{name: [[a => a.length > 2, 'Minimum length 3.']]}`
 
-4. `input` *(Object)*: The data to be validated.
+4. `input` *(Object|Function)*: The data to be validated.
 
 
 #### Returns
@@ -102,9 +101,9 @@ const failFn = (errorMsgs) => errorMsgs
 
 ```js
 {
-    name: true, 
+    name: true,
     random: [
-        'Minimum Random length of 8 is required.', 
+        'Minimum Random length of 8 is required.',
         'Random should contain at least one uppercase letter.'
     ]
 }
@@ -131,11 +130,24 @@ const spec = {
 const input = {name: 'foobar', random: 'r'}
 
 verify(spec, input)
- 
+
 //  {
-//      name: true, 
+//      name: true,
 //      random: 'Minimum Random length of 8 is required.',
 //  }
-   
+
+
+```
+
+Spected also accepts a function as an input, to simulate if an input would contain errors if empty.
+
+```
+const verify = validate(a => a, a => a)
+const validationRules = {
+  name: nameValidationRule,
+}
+const input = {name: 'foobarbaz'}
+const result = verify(validationRules, key => key ? ({...input, [key]: ''}) : input)
+deepEqual({name: ['Name should not be empty.']}, result)
 
 ```

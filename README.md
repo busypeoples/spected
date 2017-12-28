@@ -5,7 +5,7 @@
 __Spected__ is a low level validation library for validating objects against defined validation rules.
 Framework specific validation libraries can be built upon __spected__, leveraging the __spected__ appraoch of separating the speciific input from any validation.
 Furthermore it can be used to verify the validity deeply nested objects, f.e. server side validation of data or client side validation of JSON objects.
-__Spected__ can also be used to validate Form inputs etc. 
+__Spected__ can also be used to validate Form inputs etc.
 
 
 ### Getting started
@@ -46,20 +46,20 @@ Calling validate `spected(validationRules, inputData)`
 should return
 
 ```javascript
-{name: true, 
+{name: true,
  random: [
-    'Minimum Random length of 8 is required.', 
-    'Random should contain at least one uppercase letter.' 
+    'Minimum Random length of 8 is required.',
+    'Random should contain at least one uppercase letter.'
 ]}
 ```
 
-You can also pass in an array of items as an input and validate that all are valid. 
+You can also pass in an array of items as an input and validate that all are valid.
 You need to write the appropriate function to handle any specific case.
 
 ```javascript
 const userSpec = [
-  [ 
-    items => all(isLengthGreaterThan(5), items), 
+  [
+    items => all(isLengthGreaterThan(5), items),
     'Every item must have have at least 6 characters!'
   ]
 ]
@@ -79,7 +79,7 @@ spected(validationRules, input)
 ```
 
 ##### Validating Dynamic Data
-There are cases where a validation has to run against an unkown number of items. f.e. submitting a form with dynamic fields.
+There are cases where a validation has to run against an unknown number of items. f.e. submitting a form with dynamic fields.
 These dynamic fields can be an array or as object keys.
 
 ```js
@@ -136,9 +136,9 @@ const input = {
 
 ```
 
-Spected can also work with functions instead of an `[predFn, errorMsg]` tuple array, which means one can specify a function 
-that expects the input and then maps every rule to the object. Note: This example uses Ramda `map`, which expects the 
-function as the first argument and then always returns the UserSpec for every property. 
+Spected can also work with functions instead of an `[predFn, errorMsg]` tuple array, which means one can specify a function
+that expects the input and then maps every rule to the object. Note: This example uses Ramda `map`, which expects the
+function as the first argument and then always returns the UserSpec for every property.
 
 ```js
 
@@ -149,7 +149,20 @@ const validationRules = {
 
 ```
 
-How `UserSpec` is applied to every Object key is not spected specific, but can be freely implemented as needed.
+How `userSpec` is applied to every Object key.
+
+Spected also accepts a function as an input, i.e. to simulate if a field would contain errors if empty.
+
+```
+const verify = validate(a => a, a => a)
+const validationRules = {
+  name: nameValidationRule,
+}
+const input = {name: 'foobarbaz'}
+const result = verify(validationRules, key => key ? ({...input, [key]: ''}) : input)
+deepEqual({name: ['Name should not be empty.']}, result)
+
+```
 
 ### Basic Example
 
@@ -204,10 +217,9 @@ spected(validationRules, {name: 'foo', random: 'Abcd'})
 A spec can be composed of other specs, enabling to define deeply nested structures to validate against nested input.
 Let's see this in form of an example.
 
-
 ```js
 const locationSpec = {
-    street: [...], 
+    street: [...],
     city: [...],
     zip: [...],
     country: [...],
@@ -331,12 +343,12 @@ const spec = {
 const input = {name: 'foobar', random: 'r'}
 
 verify(spec, input)
- 
+
 //  {
-//      name: true, 
+//      name: true,
 //      random: 'Minimum Random length of 8 is required.',
 //  }
-   
+
 
 ```
 
@@ -352,6 +364,20 @@ For a deeper understanding of the underlying ideas and concepts:
 ### Credits
 Written by [A.Sharif](https://twitter.com/sharifsbeat)
 
+Contributions by
+
+[Paul Grenier](https://github.com/AutoSponge)
+
+[Emilio Srougo](https://github.com/Emilios1995)
+
+[Andrew Palm](https://github.com/apalm)
+
+[Luca Barone](https://github.com/cloud-walker)
+
+and many more.
+
+Also very special thanks to everyone that has contributed documentation updates and fixes (this list will updated).
+
 Original idea and support by [Stefan Oestreicher](https://twitter.com/thinkfunctional)
 
 #### Documentation
@@ -360,4 +386,3 @@ Original idea and support by [Stefan Oestreicher](https://twitter.com/thinkfunct
 ### License
 
 MIT
-
