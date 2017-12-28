@@ -149,7 +149,7 @@ const validationRules = {
 
 ```
 
-How `userSpec` is applied to every Object key.
+How `UserSpec` is applied to every Object key is not spected specific, but can be freely implemented as needed.
 
 Spected also accepts a function as an input, i.e. to simulate if a field would contain errors if empty.
 
