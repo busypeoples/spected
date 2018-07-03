@@ -95,6 +95,21 @@ describe('spected', () => {
     deepEqual({name: true}, result)
   })
 
+  it('should pass the initial inputs object to the predicate functions', () => {
+    const obj = {person: {id: 'personId'}, car: {owner: 'personId'}}
+
+    const validationRules = {
+      car: {
+        owner: [
+          [(value, values, inputValues) => (value === inputValues.person.id), 'Owner id not matching.']
+        ]
+      }
+    }
+
+    const result = spected(validationRules, obj)
+    deepEqual({ car: { owner: true }, person: true }, result)
+  })
+
   it('should handle multiple validations and return the correct errors', () => {
     const validationRules = {
       name: nameValidationRule,
