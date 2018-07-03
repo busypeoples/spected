@@ -47,7 +47,7 @@ const runPredicate = ([predicate, errorMsg]:[Function, string],
  */
 export const validate = curry((successFn: Function, failFn: Function, spec: Object, input: Object, initialInput = null): Object => {
   const inputFn = typeof input === 'function' ? input : (key?: string) => key ? input : input
-  const globalInput = initialInput || input;
+  const globalInput = initialInput || input
   const keys = Object.keys(inputFn())
   return reduce((result, key) => {
     const inputObj = inputFn(key)
