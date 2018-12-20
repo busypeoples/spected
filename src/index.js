@@ -31,7 +31,7 @@ const transform = (successFn: Function, failFn: Function, input: Array<any>): an
  */
 const runPredicate = ([predicate, errorMsg]:[Function, string],
   value:any,
-  inputs:Object, field:string) => predicate(value, inputs) // eslint-disable-line no-nested-ternary
+  inputs:Object, globalInput:Object, field:string) => predicate(value, inputs, globalInput) // eslint-disable-line no-nested-ternary
   ? true
   : typeof errorMsg === 'function'
     ? errorMsg(value, field)
@@ -45,20 +45,21 @@ const runPredicate = ([predicate, errorMsg]:[Function, string],
  * @param {Object|Function} input the validation input data
  * @returns {{}}
  */
-export const validate = curry((successFn: Function, failFn: Function, spec: Object, input: Object): Object => {
+export const validate = curry((successFn: Function, failFn: Function, spec: Object, input: Object, initialInput = null): Object => {
   const inputFn = typeof input === 'function' ? input : (key?: string) => key ? input : input
+  const globalInput = initialInput || input
   const keys = Object.keys(inputFn())
   return reduce((result, key) => {
     const inputObj = inputFn(key)
     const value = inputObj[key]
     const predicates = spec[key]
     if (Array.isArray(predicates)) {
-      return { ...result, [key]: transform(() => successFn(value), failFn, map(f => runPredicate(f, value, inputObj, key), predicates)) }
+      return { ...result, [key]: transform(() => successFn(value), failFn, map(f => runPredicate(f, value, inputObj, globalInput, key), predicates)) }
     } else if (typeof predicates === 'object') {
-      return { ...result, [key]: validate(successFn, failFn, predicates, value) }
+      return { ...result, [key]: validate(successFn, failFn, predicates, value, globalInput) }
     } else if (typeof predicates === 'function') {
       const rules = predicates(value)
-      return { ...result, [key]: validate(successFn, failFn, rules, value) }
+      return { ...result, [key]: validate(successFn, failFn, rules, value, globalInput) }
     } else {
       return { ...result, [key]: successFn([]) }
     }
