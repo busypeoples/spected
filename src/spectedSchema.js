@@ -1,12 +1,6 @@
 /* @flow */
 import {
-  all,
   curry,
-  equals,
-  filter,
-  identity,
-  map,
-  reduce,
   compose,
 } from 'ramda';
 
@@ -16,7 +10,7 @@ const simpleTypes = [
   'integer',
 ];
 
-export class Jss {
+export default class Jss {
   constructor(opts = {}) {
     const {
       rules = {},
@@ -44,15 +38,17 @@ export class Jss {
           throw new Error('Improperly configured. If a rule is specified as an array it should have length 2.');
         }
         const ruleHandler = this.rules[config[0]];
-        return curry(ruleHandler, config[0]);
-      }
-      else {
+        if (typeof ruleHandler === 'undefined') {
+          throw new Error(`Cannot find rule ${config[0]}`);
+        }
+        return curry(ruleHandler, config[1]);
+      } else {
         const ruleHandler = this.rules[config];
         return ruleHandler;
       }
     });
 
-    const combinedHandler = compose(...handlers);
+    const combinedHandler = compose(...handlers.reverse());
     return combinedHandler;
   };
 
@@ -61,17 +57,20 @@ export class Jss {
     return handler(data);
   };
 
-
   clean = (schema: Object, data, required) => {
     if (simpleTypes.indexOf(schema.type) > -1) {
-      if (!required && typeof data === 'undefined' && schema.default) {
+      const hasData = (typeof data !== 'undefined');
+      if (!required && !hasData && schema.default) {
         return schema.default;
       }
-      if (required && typeof data === 'undefined') {
+      if (required && !hasData) {
         throw new Error('Invalid data');
       }
-      if (schema.rules) {
+      if (schema.rules && hasData) {
         return this.applyRules(schema.rules, data);
+      }
+      if (!required && !hasData) {
+        return;
       }
       return data;
     }
@@ -85,11 +84,12 @@ export class Jss {
         const nextData = data[propKey];
         const isRequired = requiredProps.indexOf(propKey) > -1;
         const cleanedPart = this.clean(propsSchema, nextData, isRequired);
-        cleaned[propKey] = cleanedPart;
+        if (typeof cleanedPart !== 'undefined') {
+          cleaned[propKey] = cleanedPart;
+        }
       });
       return cleaned;
-    }
-    else if (schema.allOf) {
+    } else if (schema.allOf) {
       // Collect all properties
       let cleanedParts = {};
       schema.allOf.forEach(subSchema => {
@@ -97,12 +97,10 @@ export class Jss {
         cleanedParts = { ...cleanedParts, ...cleanedPart };
       });
       return cleanedParts;
-    }
-    else if (schema.anyOf) {
+    } else if (schema.anyOf) {
       console.log('Skipping validation because of anyOf keyword');
       return data;
-    }
-    else if (schema.oneOf) {
+    } else if (schema.oneOf) {
       console.log('Skipping validation because of oneOf keyword');
       return data;
     }
@@ -113,7 +111,4 @@ export class Jss {
 
     throw new Error('Unsupported schema');
   };
-  // clean = clean;
-  // compileRules = compileRules;
-  // applyRules = applyRules;
 }

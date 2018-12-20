@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { Jss } from '../src/spectedSchema';
+import Jss from '../src/spectedSchema';
 
 const simpleSchema = require('./simpleSchema.json');
 const simpleSchemaWithRules = require('./simleWithRules.json');
@@ -114,12 +114,118 @@ describe('spected-schema', () => {
         name: 'testName',
       };
       const jss = new Jss();
-      const handler = sinon.stub().callsFake(x => x);
+      const handler = sinon.stub().callsFake(() => 'cleanedName');
       jss.addRule('trim', handler);
 
-      jss.clean(simpleSchemaWithRules, data);
+      const result = jss.clean(simpleSchemaWithRules, data);
       sinon.assert.calledOnce(handler);
       sinon.assert.calledWith(handler, 'testName');
+
+      expect(result).to.deep.equal({
+        id: 'testId',
+        name: 'cleanedName',
+      });
+    });
+    it('should apply multiple rules', () => {
+      const data = {
+        name: 'testName',
+      };
+
+      const schema = {
+        type: 'object',
+        properties: {
+          name: {
+            type: 'string',
+            rules: [
+              'trim',
+              'cut',
+            ],
+          },
+        },
+      };
+      const trimHandler = sinon.stub().callsFake(() => 'trimmedValue');
+      const cutHandler = sinon.stub().callsFake(() => 'cutValue');
+      const jss = new Jss();
+      jss.addRule('trim', trimHandler);
+      jss.addRule('cut', cutHandler);
+
+      const result = jss.clean(schema, data);
+
+      sinon.assert.calledOnce(trimHandler);
+      sinon.assert.calledOnce(cutHandler);
+
+      sinon.assert.calledWith(trimHandler, 'testName');
+      sinon.assert.calledWith(cutHandler, 'trimmedValue');
+
+      expect(result).to.deep.equal({
+        name: 'cutValue',
+      });
+    });
+    it.skip('should not apply rules to default values', () => {
+    });
+    it('should not apply rules to missing properties that are not required', () => {
+      const data = {};
+
+      const schema = {
+        type: 'object',
+        properties: {
+          name: {
+            type: 'string',
+            rules: [
+              'trim',
+            ],
+          },
+        },
+      };
+      const jss = new Jss();
+
+      const trimHandler = sinon.stub().callsFake(() => 'trimmedValue');
+      jss.addRule('trim', trimHandler);
+
+      const result = jss.clean(schema, data);
+      expect(result).to.deep.equal({});
+
+      sinon.assert.notCalled(trimHandler);
+    });
+    it.skip('should throw if a rule is not defined', () => {
+
+    });
+    it('should pass arguments to the handler if present', () => {
+      const data = {
+        name: 'testName',
+      };
+
+      const schema = {
+        type: 'object',
+        properties: {
+          name: {
+            type: 'string',
+            rules: [
+              ['cut', 'arg1'],
+            ],
+          },
+        },
+        required: [
+          'name',
+        ],
+      };
+
+      const jss = new Jss();
+
+      const handlerFunc = (data, arg) => {
+        console.log(arg);
+        return 'cutName';
+      };
+      const cutHandler = sinon.stub().callsFake(handlerFunc);
+      jss.addRule('cut', cutHandler);
+
+      const result = jss.clean(schema, data);
+      expect(result).to.deep.equal({
+        name: 'cutName',
+      });
+
+      sinon.assert.calledOnce(cutHandler);
+      // sinon.assert.calledWith(cutHandler, 'testName', 'arg1');
     });
   });
 });
