@@ -5,10 +5,7 @@
     {
       "properties": {
         "id": {
-          "type": "string",
-          "rules": [
-            "trim"
-          ]
+          "type": "string"
         },
         "name": {
           "type": "string"
