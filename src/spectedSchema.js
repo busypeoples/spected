@@ -2,6 +2,7 @@
 import {
   curry,
   compose,
+  _,
 } from 'ramda';
 
 const simpleTypes = [
@@ -41,7 +42,8 @@ export default class Jss {
         if (typeof ruleHandler === 'undefined') {
           throw new Error(`Cannot find rule ${config[0]}`);
         }
-        return curry(ruleHandler, config[1]);
+        const curriedHanlder = curry(ruleHandler);
+        return curriedHanlder(_, config[1]);
       } else {
         const ruleHandler = this.rules[config];
         return ruleHandler;
