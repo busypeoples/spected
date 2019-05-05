@@ -22,11 +22,6 @@ var config = {
     { dest: 'dist/spected.es.js', format: 'es' },
   ],
   plugins: [
-    flow(),
-    commonjs(),
-    nodeResolve({
-      jsnext: true,
-    }),
     babel({
       babelrc: false,
       presets: [["es2015", { "modules": false }], "stage-0"],
@@ -37,6 +32,11 @@ var config = {
         'ramda',
       ],
       exclude: 'node_modules/**',
+    }),
+    flow(),
+    commonjs(),
+    nodeResolve({
+      jsnext: true,
     }),
     replace({
       'process.env.NODE_ENV': JSON.stringify(env)
@@ -51,8 +51,8 @@ if (env === 'production') {
         pure_getters: true,
         unsafe: true,
         unsafe_comps: true,
-        warnings: false,
-      }
+      },
+      warnings: false,
     })
   )
 }
