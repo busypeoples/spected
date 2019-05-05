@@ -1,6 +1,6 @@
 {
   "name": "spected",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "Validation Library",
   "main": "lib/index.js",
   "author": "25th-floor",
