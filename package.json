@@ -54,6 +54,6 @@
     "rollup-plugin-uglify": "^2.0.1"
   },
   "dependencies": {
-    "ramda": "^0.24.1"
+    "ramda": "^0.28.0"
   }
 }
